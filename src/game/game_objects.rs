@@ -5,6 +5,26 @@ game_objects.rs
 
 use ggez::{mint, graphics};
 
+const PLAYER_SIZE: f32 = 65.0;
+const PLAYER_SIZE_HALF: f32 = PLAYER_SIZE / 2.0;
+
+pub struct Player {
+    pub(crate) position: mint::Point2<f32>,
+    // rotation: f32,
+    pub(crate) color: graphics::Color,
+    pub(crate) size: f32,
+}
+
+impl Player {
+    pub fn new(position: mint::Point2<f32>, color: graphics::Color) -> Self {
+        Self {
+            position,
+            color,
+            size: PLAYER_SIZE,
+        }
+    }
+}
+
 pub struct Tube {
     height: [f32 ; 2],           // Высота каждой трубы, .0 -> нижняя, .1 -> верхняя
     width: f32,                  // Длина каждой трубы
