@@ -15,7 +15,7 @@ use physics::{fall, jump};
 
 use game_objects::{Tube, Player};
 use game_objects::{check_tube, gen_random_height};
-use game_objects::TUBES_AMOUNT;
+use game_objects::{TUBES_AMOUNT, TUBES_PADDING};
 
 use self::physics::move_tube;
 
@@ -42,17 +42,29 @@ impl MainState {
             tubes: [
                 Tube::new(
                     gen_random_height(&ctx),
-                    mint::Point2::<f32> { x: screen_w, y: screen_h },
+                    screen_w,
+                    [
+                        0.0,
+                        screen_h
+                    ],
                     graphics::Color::GREEN,
                 ),
                 Tube::new(
                     gen_random_height(&ctx),
-                    mint::Point2::<f32> { x: screen_w, y: screen_h },
+                    screen_w + TUBES_PADDING,
+                    [
+                        0.0,
+                        screen_h
+                    ],
                     graphics::Color::GREEN,
                 ),
                 Tube::new(
                     gen_random_height(&ctx),
-                    mint::Point2::<f32> { x: screen_w, y: screen_h },
+                    screen_w + TUBES_PADDING * 2.0,
+                    [
+                        0.0,
+                        screen_h
+                    ],
                     graphics::Color::GREEN,
                 ),
             ],
@@ -63,13 +75,13 @@ impl MainState {
 
 impl event::EventHandler for MainState {
     fn update(&mut self, ctx: &mut Context) -> GameResult {
-        if keyboard::is_key_pressed(&ctx, KeyCode::Space) && !self.in_game {
+        if keyboard::is_key_pressed(&ctx, KeyCode::W) && !self.in_game {
             self.in_game = true;
         }
         if self.in_game {
             fall(&ctx, &mut self.player.position);
 
-            if keyboard::is_key_pressed(&ctx, KeyCode::Space) {
+            if keyboard::is_key_pressed(&ctx, KeyCode::W) {
                 jump(&ctx, &mut self.player.position)
             }
 
@@ -82,7 +94,7 @@ impl event::EventHandler for MainState {
     }
 
     fn draw(&mut self, ctx: &mut Context) -> GameResult {
-        graphics::clear(ctx, graphics::Color::CYAN);
+        graphics::clear(ctx, graphics::Color::WHITE);
 
         // let (screen_w, screen_h) = graphics::drawable_size(ctx);
 
@@ -101,17 +113,18 @@ impl event::EventHandler for MainState {
             player_rect,
             self.player.color,
         )?;
+        // -(self.tubes[i].get_height()[0] / 2.0),
 
         for i in 0..self.tubes.len() {
             let tube_rect0 = graphics::Rect::new(
-                -(self.tubes[i].get_height()[0] / 2.0),
                 -(self.tubes[i].get_width() / 2.0),
+                -(self.tubes[i].get_height()[0] / 2.0),
                 self.tubes[i].get_width(),
                 self.tubes[i].get_height()[0]
             );
             let tube_rect1 = graphics::Rect::new(
-                -(self.tubes[i].get_height()[1] / 2.0),
                 -(self.tubes[i].get_width() / 2.0),
+                -(self.tubes[i].get_height()[0] / 2.0),
                 self.tubes[i].get_width(),
                 self.tubes[i].get_height()[1]
             );
@@ -132,12 +145,18 @@ impl event::EventHandler for MainState {
             graphics::draw(
                 ctx,
                 &tube_mesh0,
-                draw_param.dest(self.tubes[i].get_position())
+                draw_param.dest(mint::Point2::<f32> {
+                    x: self.tubes[i].get_x(),
+                    y: self.tubes[i].get_y()[0],
+                })
             )?;
             graphics::draw(
                 ctx,
                 &tube_mesh1,
-                draw_param.dest(self.tubes[i].get_position())
+                draw_param.dest(mint::Point2::<f32> {
+                    x: self.tubes[i].get_x(),
+                    y: self.tubes[i].get_y()[0],
+                })
             )?;
         }
 
